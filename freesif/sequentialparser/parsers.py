@@ -1748,6 +1748,8 @@ def rdielcor_reader(rec_name, rec, in_file, out_file):
                 nlay, nok, noj, noi = 0, 1, 1, 3
             elif icoref == 24:  # Flat Quadrilateral Thin Shell
                 nlay, nok, noj, noi = 0, 2, 3, 3
+            elif icoref == 23: # General Curved Beam
+                nlay, nok, noj, noi = 0, 1, 1, 3
 
         # gamma
         if nok == 1:
@@ -1769,6 +1771,8 @@ def rdielcor_reader(rec_name, rec, in_file, out_file):
         recs.add(rec[:3])
 
         rec_name, rec = in_file.read_headerrec()
+        while not rec_name:
+            rec_name, rec = in_file.read_headerrec()
 
     recs.write()
     return rec_name, rec
@@ -1904,7 +1908,10 @@ def rvnodres_reader(rec_name, rec, in_file, out_file):
         rec += in_file.read_floats(1)
         nfield = int(rec[0])
         ires = int(rec[1])
-        icompl = rdresref_data[ires]
+        if ires in rdresref_data.keys():
+            icompl = rdresref_data[ires]
+        else:
+            icompl = 0
         nres = (nfield - 5) // (icompl + 1)
 
         res.add(in_file.read_floats(nres))
@@ -1965,7 +1972,10 @@ def rvelmres_reader(rec_name, rec, in_file, out_file):
 
         nsp = nsp_data[(ispalt, iielno)]
         lenrec = lenrec_data[(rec_name, ir)]
-        icompl = rdresref_data[ires]
+        if ires in rdresref_data.keys():
+            icompl = rdresref_data[ires]
+        else:
+            icompl = 0
 
         res.add(in_file.read_floats(nsp*lenrec*(icompl + 1)))
         recs.add(rec)

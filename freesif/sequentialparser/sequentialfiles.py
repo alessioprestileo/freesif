@@ -276,8 +276,11 @@ class FormattedFile(SequentialFile):
         return self.f.readline()[:-1]  # skip the newline character
 
     def tofloatrec(self, stringrec):
-        return tuple([float(stringrec[i:i+16])
-                     for i in range(0, len(stringrec), 16)])
+        try: 
+            return tuple([float(stringrec[i:i+16]) for i in range(0, len(stringrec), 16)])
+        except ValueError:
+            print('problem with {}'.format(stringrec))
+            pass
 
 
     def read_floatrec(self, skipfirst=0):
