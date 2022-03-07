@@ -365,6 +365,8 @@ def standard_record_reader(record_name, descriptor, skipfirst=0):
             recs.add(rec)
 
             rec_name, rec = in_file.read_headerrec()
+            if not rec_name:
+                rec_name, rec = in_file.read_headerrec()
 
         recs.write()
         return rec_name, rec
