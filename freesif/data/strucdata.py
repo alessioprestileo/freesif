@@ -687,13 +687,18 @@ class FirstLevelData(StrucData):
 
         return con, offset, eltyp
 
-    def get_element_pressure(self):
+    def get_element_pressure(self, sets=None, kind='shell'):
         'Get element pressure'
 
         beuslo, magn, empty = self._get_record('beuslo')
-        elems = beuslo.col('elno')
+        elems_dum = beuslo.col('elno')
+        elemnumbs_int = self.get_elementnumbers(sets, kind, numbertype='internal')
+        elemnumbs_ext = self.get_elementnumbers(sets, kind, numbertype='external')
+        int_ext_translate = {elemnumbs_int[i]: elemnumbs_ext[i] for i in range(len(elemnumbs_int))}
+        elems = [int_ext_translate[j] for j in elems_dum]
         offset = beuslo.col('rload_stop')
-        return elems, offset, np.array(magn)
+        llc = beuslo.col('llc')
+        return elems, offset, np.array(magn), llc
 
     def get_elementnumbers(self, sets=None, kind=None, numbertype='external'):
         """Get internal or external (default) element numbers.
