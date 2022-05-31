@@ -942,6 +942,24 @@ class FirstLevelData(StrucData):
         gbeamg_indices = dict(zip(gbeamg.col('geono'), range((len(gbeamg)))))        
         return np.array([tdsect_arr[gbeamg_indices[gbm]] for gbm in geono_bm])
 
+    def get_beam_normal(self, sets=None, kind='beam'):
+        # Returns dictionary with beam element number as keys and normal vector as values
+        gelref1, geono, fixno, eccno, transno = self._get_record('gelref1')
+        elems = gelref1.col('elno')
+        elemnumbs_int = self.get_elementnumbers(sets, numbertype='internal')
+        elemnumbs_ext = self.get_elementnumbers(sets, numbertype='external')
+        beamnumbs_ext = self.get_elementnumbers(sets, kind, numbertype='external')
+        int_ext_translate = {elemnumbs_int[i]: elemnumbs_ext[i] for i in range(len(elemnumbs_int))}
+        transno_1 = gelref1.col('transno')
+        elems2 = [int_ext_translate[j] for j in elems]
+        transnodict_1 = dict(zip(elems2, transno_1))
+        univec = self._get_record('gunivec')
+        transno2, unix, uniy, uniz = univec.col('transno'),univec.col('unix'),univec.col('uniy'),univec.col('uniz')
+        b = list(zip(*[unix,uniy,uniz]))
+        transnodict = dict(zip(transno2, b))
+        beam_vec = {i: transnodict[transnodict_1[i]] for i in beamnumbs_ext}
+        return beam_vec
+    
     def get_shell_thicknesses(self, sets=None):
         """Get shell thicknesses
         """
